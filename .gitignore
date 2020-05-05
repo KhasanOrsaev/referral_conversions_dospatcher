@@ -1,3 +1,4 @@
 .idea
 repository/.env
-repository/test_data
+repository/test_data*
+.env
