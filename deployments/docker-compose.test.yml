@@ -1,0 +1,40 @@
+# в помощь  https://smartystreets.com/blog/2018/09/private-dependencies-in-docker-and-go
+version: '2.2'
+
+services:
+  #referral_coversions_dispatcher:
+  #  container_name: referral-coversions-dispatcher
+  #  build:
+  #    context: ../.
+  #    args:
+  #      GIT_LOGIN: ${DOCKER_NETRC}
+  #  restart: always
+  #  env_file:
+  #    - ../.env
+  #  networks:
+  #    - cs-dispatcher-network
+  #  volumes:
+  #  - ./var/log:/app/var/log
+
+  dispatcher-clickhouse:
+    container_name: dispatcher-clickhouse
+    image: yandex/clickhouse-server:19.17.6.36
+    ports:
+      - 8123:8123
+    volumes:
+      - ../build/clickhouse/config.d/:/etc/clickhouse-server/config.d/
+      - ../build/clickhouse/users.d/:/etc/clickhouse-server/users.d/
+      - ../build/clickhouse/sql/:/docker-entrypoint-initdb.d/
+      - /data/docker/events-backend/clickhouse/data:/var/lib/clickhouse
+      - /data/docker/events-backend/clickhouse/logs:/var/log/clickhouse-server
+    networks:
+      - cs-dispatcher-network
+    restart: always
+    ulimits:
+      nofile:
+        soft: 128000
+        hard: 128000
+
+networks:
+  cs-dispatcher-network:
+    external: true
